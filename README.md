@@ -52,8 +52,10 @@ model, data and training run, differing only in which epoch is reported.
 | the test site itself | 0.6738 ± 0.062 |
 | **inflation** | **+0.1291** (Wilcoxon p = 0.031) |
 
-Inflation is largest on the smallest sites (CALTECH, n=36: 0.469 → 0.724). See
-`check_paper1_protocol.py`.
+Inflation varies widely by site (+0.061 to +0.255) but does **not** track site size
+(Pearson r = +0.038, p = 0.94, n = 6 sites — no power to detect such an effect either
+way). Measured on 6 sites × 2 seeds × 60 epochs; Paper 1 ran 200 epochs, so its optimism
+is likely larger still. See `check_paper1_protocol.py`.
 
 **3. GraphNorm destroys the signal under mean pooling.** GraphNorm centres each channel
 across the nodes of a graph; `global_mean_pool` then averages over those same nodes, so the
