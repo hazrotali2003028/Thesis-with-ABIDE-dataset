@@ -1,0 +1,79 @@
+Does ComBat remove the ASD signal?  (A/B under identical LOSO)
+====================================================================
+subjects 979 | sites 20 | features 232
+
+model       harmonized      raw    delta        p  raw wins
+logreg          0.5794   0.5790  +0.0005   0.8721      8/20
+svm_rbf         0.6037   0.5700  +0.0336   0.0759      6/20
+xgboost         0.5782   0.5584  +0.0197   0.4749      9/20
+
+VERDICT: harmonization HELPS. ComBat is not the bottleneck;
+the ~0.60 ceiling reflects the data, not the pipeline.
+
+Cross-site spread of per-site AUC (ComBat's actual purpose):
+  logreg     sd(harmonized)=0.0897  sd(raw)=0.0920
+  svm_rbf    sd(harmonized)=0.0889  sd(raw)=0.1111
+  xgboost    sd(harmonized)=0.0764  sd(raw)=0.1088
+
+Per-site AUC:
+  model     site  harmonized   raw
+ logreg  CALTECH       0.648 0.583
+ logreg      CMU       0.555 0.549
+ logreg      KKI       0.601 0.635
+ logreg LEUVEN_1       0.689 0.663
+ logreg LEUVEN_2       0.775 0.768
+ logreg  MAX_MUN       0.582 0.617
+ logreg      NYU       0.547 0.559
+ logreg     OHSU       0.436 0.462
+ logreg     OLIN       0.530 0.548
+ logreg     PITT       0.573 0.654
+ logreg      SBL       0.500 0.445
+ logreg     SDSU       0.583 0.620
+ logreg STANFORD       0.477 0.517
+ logreg  TRINITY       0.421 0.377
+ logreg   UCLA_1       0.507 0.498
+ logreg   UCLA_2       0.590 0.576
+ logreg     UM_1       0.672 0.668
+ logreg     UM_2       0.566 0.544
+ logreg      USM       0.681 0.681
+ logreg     YALE       0.657 0.615
+svm_rbf  CALTECH       0.574 0.648
+svm_rbf      CMU       0.637 0.558
+svm_rbf      KKI       0.625 0.684
+svm_rbf LEUVEN_1       0.587 0.434
+svm_rbf LEUVEN_2       0.772 0.688
+svm_rbf  MAX_MUN       0.589 0.575
+svm_rbf      NYU       0.601 0.556
+svm_rbf     OHSU       0.609 0.667
+svm_rbf     OLIN       0.559 0.563
+svm_rbf     PITT       0.697 0.658
+svm_rbf      SBL       0.423 0.343
+svm_rbf     SDSU       0.612 0.587
+svm_rbf STANFORD       0.632 0.365
+svm_rbf  TRINITY       0.490 0.482
+svm_rbf   UCLA_1       0.584 0.571
+svm_rbf   UCLA_2       0.535 0.542
+svm_rbf     UM_1       0.670 0.632
+svm_rbf     UM_2       0.588 0.658
+svm_rbf      USM       0.490 0.436
+svm_rbf     YALE       0.801 0.754
+xgboost  CALTECH       0.528 0.531
+xgboost      CMU       0.473 0.484
+xgboost      KKI       0.589 0.671
+xgboost LEUVEN_1       0.515 0.459
+xgboost LEUVEN_2       0.726 0.702
+xgboost  MAX_MUN       0.512 0.526
+xgboost      NYU       0.593 0.589
+xgboost     OHSU       0.647 0.724
+xgboost     OLIN       0.570 0.526
+xgboost     PITT       0.604 0.566
+xgboost      SBL       0.588 0.489
+xgboost     SDSU       0.603 0.479
+xgboost STANFORD       0.628 0.353
+xgboost  TRINITY       0.391 0.429
+xgboost   UCLA_1       0.536 0.494
+xgboost   UCLA_2       0.611 0.493
+xgboost     UM_1       0.671 0.597
+xgboost     UM_2       0.588 0.750
+xgboost      USM       0.521 0.583
+xgboost     YALE       0.668 0.724

@@ -1,0 +1,3 @@
+folder_id,error
+Olin_0050127,"ValueError: cannot reshape array of size 4095 into shape (135723,2)"
+UM_1_0050272,"ValueError: cannot reshape array of size 61439 into shape (103040,2)"

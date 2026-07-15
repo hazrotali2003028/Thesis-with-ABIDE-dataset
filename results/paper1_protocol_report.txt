@@ -1,0 +1,26 @@
+Protocol optimism: Paper 1's epoch-selection rule vs an honest one
+======================================================================
+Identical model, data and training run. The ONLY difference is which
+epoch is reported: the one chosen on a validation split (honest), or
+the best-scoring epoch on the test site itself (Paper 1's rule).
+
+sites: 6 | seeds per site: 2 | epochs: 60
+
+  honest      AUC = 0.5447 +/- 0.0617
+  Paper 1rule AUC = 0.6738 +/- 0.0619
+  INFLATION       = +0.1291   (Wilcoxon p = 0.0312)
+
+Paper 1 reported GAT v3 at 0.635 +/- 0.052 using this rule.
+Subtracting the measured optimism puts it near 0.506, i.e. in the same band as the honest
+HeteroGNN (0.5557) and BELOW the svm_rbf baseline (0.6037).
+
+Implication: 0.635 is not an out-of-sample estimate and must not be
+compared against nested-LOSO numbers, nor cited as the bar to beat.
+
+    site  honest  paper1
+ CALTECH   0.469   0.724
+     CMU   0.475   0.558
+     KKI   0.584   0.703
+LEUVEN_1   0.569   0.717
+LEUVEN_2   0.625   0.686
+ MAX_MUN   0.546   0.656

@@ -1,0 +1,48 @@
+ABIDE I — HeteroGNN feature extraction QC report
+============================================================
+Subject folders            : 1035
+Extraction failures        : 2
+Extracted + joined         : 1033
+
+Gate results (subjects failing each gate, non-exclusive):
+  qc_tiv_ok              fail =    0
+  qc_no_zero_region      fail =    0
+  qc_no_extreme_z        fail =   27
+  qc_lgi_ok              fail =   33
+  qc_euler_ok            fail =    0
+  qc_no_missing_feature  fail =   21
+
+Non-blocking data issues:
+  lGI absent (>=1 hemi)     : 14
+  curv corrupt (>=1 hemi)   : 1   (quality index falls back to the intact hemisphere)
+
+qc_pass = True             : 979
+qc_pass = False            : 54
+
+Cohort of qc_pass subjects:
+  ASD / TD                 : 466 / 513
+  Male / Female            : 828 / 151
+  Sites                    : 20
+  Age  mean/min/max        : 17.0 / 6.5 / 64.0
+
+Per-site counts (qc_pass):
+  CALTECH      36
+  CMU          27
+  KKI          42
+  LEUVEN_1     28
+  LEUVEN_2     34
+  MAX_MUN      48
+  NYU         173
+  OHSU         25
+  OLIN         33
+  PITT         53
+  SBL          27
+  SDSU         33
+  STANFORD     36
+  TRINITY      45
+  UCLA_1       71
+  UCLA_2       24
+  UM_1         90
+  UM_2         31
+  USM          67
+  YALE         56

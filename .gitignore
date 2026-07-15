@@ -1,0 +1,44 @@
+# ─── Raw datasets (~33 GB, and covered by the ABIDE data use agreement) ───────
+abide_freesurfer6_lgi/
+abide_label/
+abide_native_desc/
+abide_mri_brain/
+abide_mri_brain.tar.gz
+ABIDE_Phenotype.zip
+*.tar.gz
+*.mgz
+
+# ─── Individual-level subject data — DO NOT REDISTRIBUTE ──────────────────────
+# These hold one row per participant with SUB_ID, SITE_ID, DX_GROUP, age, sex,
+# FIQ and 232 brain measures. That is individual-level health data on identified
+# ABIDE participants, governed by the data use agreement you accepted on
+# download. Anyone wanting to reproduce this work should obtain ABIDE from the
+# source and re-run extract_features.py, which regenerates both in ~13 minutes.
+features/Phenotypic_V1_0b.csv
+features/abide_features_raw.csv
+
+# Everything else in features/ is aggregate and safe to publish:
+#   node_coords.csv     96 cohort-mean node centroids
+#   feature_names.txt   column definitions
+#   qc_report.txt        exclusion counts
+#   extraction_log.csv   which files were corrupt
+!features/node_coords.csv
+!features/feature_names.txt
+!features/qc_report.txt
+!features/extraction_log.csv
+
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# ─── Local noise ──────────────────────────────────────────────────────────────
+.claude/
+.vscode/
+.idea/
+*.log
+Thumbs.db
+desktop.ini

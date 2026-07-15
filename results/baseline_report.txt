@@ -1,0 +1,42 @@
+ABIDE I - Baseline LOSO results (plan Stage 9)
+================================================================
+subjects 979 | sites 20 | features 232
+Preprocessing identical to the HeteroGNN: train-only ComBat + scaler.
+Per-site AUC averaged over seeds, then averaged over sites.
+
+     model  mean_auc  std_auc  n_sites  accuracy  sensitivity  specificity
+   svm_rbf    0.6037   0.0889       20    0.5792       0.3979       0.7568
+        rf    0.5969   0.0885       20    0.5742       0.4371       0.7137
+   xgboost    0.5860   0.0875       20    0.5711       0.4137       0.7246
+    logreg    0.5794   0.0897       20    0.5523       0.3578       0.7354
+       mlp    0.5720   0.0584       20    0.5467       0.4265       0.6648
+svm_linear    0.5544   0.0892       20    0.5272       0.2414       0.7986
+     dummy    0.5000   0.0000       20    0.5218       0.0000       1.0000
+
+FLOOR TO BEAT: svm_rbf at AUC 0.6037 +/- 0.0889
+The HeteroGNN must beat this by a Wilcoxon signed-rank test over
+the 20 paired site-level AUCs, not merely on the mean.
+
+Per-site AUC by model:
+model     dummy  logreg   mlp    rf  svm_linear  svm_rbf  xgboost
+site                                                             
+CALTECH   0.500   0.648 0.599 0.515       0.642    0.574    0.541
+CMU       0.500   0.555 0.530 0.525       0.566    0.637    0.511
+KKI       0.500   0.601 0.543 0.648       0.654    0.625    0.591
+LEUVEN_1  0.500   0.689 0.568 0.508       0.676    0.587    0.527
+LEUVEN_2  0.500   0.775 0.690 0.649       0.711    0.772    0.745
+MAX_MUN   0.500   0.582 0.522 0.541       0.501    0.589    0.540
+NYU       0.500   0.547 0.575 0.615       0.548    0.601    0.585
+OHSU      0.500   0.436 0.588 0.695       0.365    0.609    0.681
+OLIN      0.500   0.530 0.492 0.583       0.504    0.559    0.533
+PITT      0.500   0.573 0.592 0.734       0.555    0.697    0.638
+SBL       0.500   0.500 0.586 0.462       0.549    0.423    0.451
+SDSU      0.500   0.583 0.596 0.681       0.558    0.612    0.666
+STANFORD  0.500   0.477 0.596 0.590       0.461    0.632    0.599
+TRINITY   0.500   0.421 0.453 0.478       0.425    0.490    0.395
+UCLA_1    0.500   0.507 0.605 0.572       0.505    0.584    0.539
+UCLA_2    0.500   0.590 0.461 0.550       0.507    0.535    0.647
+UM_1      0.500   0.672 0.631 0.644       0.649    0.670    0.660
+UM_2      0.500   0.566 0.590 0.658       0.478    0.588    0.655
+USM       0.500   0.681 0.580 0.506       0.623    0.490    0.526
+YALE      0.500   0.657 0.644 0.783       0.612    0.801    0.691
