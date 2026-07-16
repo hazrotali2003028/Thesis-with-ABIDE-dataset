@@ -96,13 +96,13 @@ vector: **0.024 (GraphNorm) vs 0.199 (BatchNorm)**. Switching to BatchNorm recov
 ## Pipeline
 
 ```
-extract_features.py      FreeSurfer outputs -> 232 features + QC   (~13 min, 5 workers)
+extract_features.py      FreeSurfer outputs -> 232 features + QC   
 build_coords.py          96 node centroids -> features/node_coords.csv
 combat.py                ComBat: train-only fit, unseen-site forward apply
 hetero_data.py           harmonization + scaler + covariation graph (all train-only)
 hetero_gnn.py            HeteroConv/GATv2 + BatchNorm + temperature scaling
-train_baselines.py       7 baselines through identical folds       (~7 min)
-train_nested_loso.py     nested LOSO, resumable                    (~1.7 h, GPU)
+train_baselines.py       7 baselines through identical folds       
+train_nested_loso.py     nested LOSO, resumable                    
 compare_models.py        paired Wilcoxon + Holm, GNN vs baselines
 check_harmonization.py   A/B: harmonized vs raw features
 check_paper1_protocol.py measures epoch-selection inflation
