@@ -43,19 +43,40 @@ adjacency is computed *across* subjects, so it is byte-identical for every subje
 carries zero subject-specific information and the GNN degenerates to an MLP with a fixed
 mixing matrix. This independently reproduces Paper 1's GAT ≈ MLP (p = 0.984).
 
-**2. Epoch selection on the test fold inflates AUC by ~0.13.** Measured directly: the same
-model, data and training run, differing only in which epoch is reported.
+**2. Epoch selection on the test fold inflates AUC by +0.10.** Measured directly over all
+20 sites × 3 seeds: the same model, data and training run, differing only in which epoch
+is reported.
 
 | epoch chosen on | AUC |
 |---|---|
-| a held-out validation split (honest) | 0.5447 ± 0.062 |
-| the test site itself | 0.6738 ± 0.062 |
-| **inflation** | **+0.1291** (Wilcoxon p = 0.031) |
+| a held-out validation split (honest) | 0.5497 ± 0.081 |
+| the test site itself | 0.6502 ± 0.071 |
+| **inflation** | **+0.1004 ± 0.063** (Wilcoxon p = 1.9e-06) |
 
-Inflation varies widely by site (+0.061 to +0.255) but does **not** track site size
-(Pearson r = +0.038, p = 0.94, n = 6 sites — no power to detect such an effect either
-way). Measured on 6 sites × 2 seeds × 60 epochs; Paper 1 ran 200 epochs, so its optimism
-is likely larger still. See `check_paper1_protocol.py`.
+The honest figure (0.5497) independently reproduces the nested-LOSO result (0.5557) via a
+separate code path.
+
+Inflation ranges +0.025 to +0.243 and is driven by **how poorly the model genuinely
+performs**, not by site size:
+
+| predictor of inflation | r | p |
+|---|---|---|
+| honest AUC | **−0.541** | ~0.014 |
+| site size | −0.374 | 0.104 (n.s.) |
+
+Low true skill leaves more headroom for lucky noise. The clearest case is UM_2: honest AUC
+**0.389** — worse than a coin flip — reported as **0.632** under Paper 1's rule. Compare
+LEUVEN_2, genuinely decent at 0.662, which gains only +0.025.
+
+**Comparison to Paper 1.** Paper 1 reported GAT v3 at 0.635 ± 0.052 over these same 20
+sites using this rule. The HeteroGNN under the same rule scores **0.6502** — with 60 epochs
+against Paper 1's 200, so with fewer chances to maximise over. This suggests the newer
+architecture is at least as good on Paper 1's own terms, though without Paper 1's per-site
+numbers the +0.015 margin cannot be tested for significance.
+
+Both figures are protocol artefacts, not out-of-sample estimates. Under honest validation
+both architectures land near 0.55, below the 0.6037 svm_rbf baseline. See
+`check_paper1_protocol.py`.
 
 **3. GraphNorm destroys the signal under mean pooling.** GraphNorm centres each channel
 across the nodes of a graph; `global_mean_pool` then averages over those same nodes, so the

@@ -1,26 +1,44 @@
 Protocol optimism: Paper 1's epoch-selection rule vs an honest one
-======================================================================
+========================================================================
 Identical model, data and training run. The ONLY difference is which
 epoch is reported: the one chosen on a validation split (honest), or
 the best-scoring epoch on the test site itself (Paper 1's rule).
 
-sites: 6 | seeds per site: 2 | epochs: 60
+sites: 20 | seeds per site: 3 | epochs: 60
 
-  honest      AUC = 0.5447 +/- 0.0617
-  Paper 1rule AUC = 0.6738 +/- 0.0619
-  INFLATION       = +0.1291   (Wilcoxon p = 0.0312)
+  honest       AUC = 0.5497 +/- 0.0805
+  Paper 1 rule AUC = 0.6502 +/- 0.0705
+  INFLATION        = +0.1004 +/- 0.0634   (Wilcoxon p = 1.907e-06)
+  range            = +0.025 to +0.243
 
-Paper 1 reported GAT v3 at 0.635 +/- 0.052 using this rule.
-Subtracting the measured optimism puts it near 0.506, i.e. in the same band as the honest
-HeteroGNN (0.5557) and BELOW the svm_rbf baseline (0.6037).
+Does the inflation depend on how big the test site is?
+  corr(site size, inflation)  r = -0.374  p = 0.104
+  corr(honest AUC, inflation) r = -0.541
 
-Implication: 0.635 is not an out-of-sample estimate and must not be
-compared against nested-LOSO numbers, nor cited as the bar to beat.
+Paper 1 reported GAT v3 at 0.635 +/- 0.052 over these same 20 sites,
+using this rule. The HeteroGNN under the same rule scores 0.6502.
 
-    site  honest  paper1
- CALTECH   0.469   0.724
-     CMU   0.475   0.558
-     KKI   0.584   0.703
-LEUVEN_1   0.569   0.717
-LEUVEN_2   0.625   0.686
- MAX_MUN   0.546   0.656
+This measurement UNDERSTATES Paper 1's optimism: 60 epochs here vs its
+200, and more epochs means more draws to take a maximum over.
+
+    site  n_test  honest  paper1  inflation
+    UM_2      31   0.389   0.632      0.243
+LEUVEN_1      28   0.517   0.728      0.211
+ CALTECH      36   0.508   0.708      0.200
+     SBL      27   0.425   0.586      0.161
+  UCLA_2      24   0.463   0.609      0.146
+    OHSU      25   0.519   0.654      0.135
+    YALE      56   0.691   0.817      0.125
+    PITT      53   0.583   0.683      0.100
+     KKI      42   0.619   0.710      0.091
+     CMU      27   0.480   0.560      0.081
+    UM_1      90   0.588   0.660      0.072
+    SDSU      33   0.671   0.742      0.072
+    OLIN      33   0.575   0.644      0.069
+ MAX_MUN      48   0.591   0.650      0.059
+ TRINITY      45   0.532   0.585      0.052
+     NYU     173   0.577   0.626      0.050
+  UCLA_1      71   0.537   0.583      0.047
+     USM      67   0.475   0.514      0.039
+STANFORD      36   0.591   0.625      0.034
+LEUVEN_2      34   0.662   0.687      0.025
