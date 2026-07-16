@@ -11,7 +11,7 @@ Not included in this repository. The raw archives (~33 GB) and the individual-le
 feature table are covered by the ABIDE data use agreement and are gitignored. To
 reproduce, obtain ABIDE I from
 [the Preprocessed Connectomes Project](http://preprocessed-connectomes-project.org/abide/)
-and run `extract_features.py`, which regenerates the feature table in ~13 minutes.
+and run `extract_features.py`, which regenerates the feature table 
 
 Cohort after QC: **979 subjects** (466 ASD / 513 TD), 20 sites, 232 features per subject.
 
