@@ -78,6 +78,25 @@ Both figures are protocol artefacts, not out-of-sample estimates. Under honest v
 both architectures land near 0.55, below the 0.6037 svm_rbf baseline. See
 `check_paper1_protocol.py`.
 
+**Decomposing the leak.** Paper 1 also harmonizes `df_all` (train + val + test) with
+DX_GROUP preserved, before any fold is cut. Measured separately under honest epoch
+selection over 20 sites (`check_combat_leak.py`):
+
+| leak | worth |
+|---|---|
+| test site influences the ComBat fit | **−0.0042** (n.s.) |
+| test **labels** in the ComBat design | **+0.0080** (n.s.) |
+| **epoch selection on the test fold** | **+0.1004** (p = 1.9e-06) |
+
+The ComBat leak looks alarming in the code — preserving DX means every ASD subject has
+`+B_dx` added back to each feature — but it is worth nothing, because ComBat subtracts a
+preserved covariate's effect and adds the identical value back. That is a no-op for the DX
+component; it reaches γ/δ only second-hand.
+
+**So Paper 1's 0.635 is essentially entirely the epoch-selection rule.** Leaky ComBat plus
+honest validation would leave the HeteroGNN near 0.56. 0.65 is unreachable without reading
+the test site during training.
+
 **3. GraphNorm destroys the signal under mean pooling.** GraphNorm centres each channel
 across the nodes of a graph; `global_mean_pool` then averages over those same nodes, so the
 readout collapses toward a learned constant. Measured across-subject SD of the pooled graph
@@ -106,6 +125,7 @@ train_nested_loso.py     nested LOSO, resumable
 compare_models.py        paired Wilcoxon + Holm, GNN vs baselines
 check_harmonization.py   A/B: harmonized vs raw features
 check_paper1_protocol.py measures epoch-selection inflation
+check_combat_leak.py     separates ComBat site leakage from label leakage
 ```
 
 Tests: `test_combat.py`, `test_calibration.py`.

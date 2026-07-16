@@ -1,0 +1,82 @@
+What Paper 1's ComBat-on-everything is worth
+========================================================================
+Honest epoch selection throughout. Only the harmonization varies.
+
+model       train_only  leaky_nodx   leaky_dx  site leak  LABEL leak
+logreg          0.5794      0.5790     0.5863    -0.0005     +0.0073
+svm_rbf         0.6037      0.6059     0.6058    +0.0022     -0.0001
+xgboost         0.5782      0.5638     0.5807    -0.0143     +0.0169
+
+Significance vs train_only (Wilcoxon, paired over 20 sites):
+  logreg     leaky_nodx  delta = -0.0005  p = 0.8361
+  logreg     leaky_dx    delta = +0.0069  p = 0.658
+  svm_rbf    leaky_nodx  delta = +0.0022  p = 0.9133
+  svm_rbf    leaky_dx    delta = +0.0021  p = 0.8695
+  xgboost    leaky_nodx  delta = -0.0143  p = 0.5459
+  xgboost    leaky_dx    delta = +0.0026  p = 0.6742
+
+Mean cost of letting the test site into the fit : -0.0042
+Mean cost of letting test LABELS into the fit   : +0.0080
+
+Per-site AUC:
+  model     site  leaky_dx  leaky_nodx  train_only
+ logreg  CALTECH     0.648       0.645       0.648
+ logreg      CMU     0.549       0.555       0.555
+ logreg      KKI     0.630       0.596       0.601
+ logreg LEUVEN_1     0.673       0.673       0.689
+ logreg LEUVEN_2     0.754       0.761       0.775
+ logreg  MAX_MUN     0.584       0.582       0.582
+ logreg      NYU     0.550       0.550       0.547
+ logreg     OHSU     0.429       0.436       0.436
+ logreg     OLIN     0.544       0.541       0.530
+ logreg     PITT     0.575       0.575       0.573
+ logreg      SBL     0.473       0.500       0.500
+ logreg     SDSU     0.587       0.583       0.583
+ logreg STANFORD     0.560       0.477       0.477
+ logreg  TRINITY     0.395       0.425       0.421
+ logreg   UCLA_1     0.497       0.515       0.507
+ logreg   UCLA_2     0.674       0.583       0.590
+ logreg     UM_1     0.687       0.668       0.672
+ logreg     UM_2     0.579       0.570       0.566
+ logreg      USM     0.670       0.688       0.681
+ logreg     YALE     0.668       0.656       0.657
+svm_rbf  CALTECH     0.568       0.571       0.574
+svm_rbf      CMU     0.593       0.626       0.637
+svm_rbf      KKI     0.639       0.627       0.625
+svm_rbf LEUVEN_1     0.589       0.602       0.587
+svm_rbf LEUVEN_2     0.761       0.765       0.772
+svm_rbf  MAX_MUN     0.585       0.584       0.589
+svm_rbf      NYU     0.596       0.599       0.601
+svm_rbf     OHSU     0.577       0.603       0.609
+svm_rbf     OLIN     0.563       0.559       0.559
+svm_rbf     PITT     0.703       0.700       0.697
+svm_rbf      SBL     0.440       0.462       0.423
+svm_rbf     SDSU     0.620       0.612       0.612
+svm_rbf STANFORD     0.672       0.633       0.632
+svm_rbf  TRINITY     0.480       0.488       0.490
+svm_rbf   UCLA_1     0.569       0.585       0.584
+svm_rbf   UCLA_2     0.601       0.556       0.535
+svm_rbf     UM_1     0.686       0.674       0.670
+svm_rbf     UM_2     0.588       0.583       0.588
+svm_rbf      USM     0.481       0.488       0.490
+svm_rbf     YALE     0.805       0.801       0.801
+xgboost  CALTECH     0.509       0.506       0.528
+xgboost      CMU     0.500       0.571       0.473
+xgboost      KKI     0.603       0.555       0.589
+xgboost LEUVEN_1     0.546       0.531       0.515
+xgboost LEUVEN_2     0.765       0.775       0.726
+xgboost  MAX_MUN     0.551       0.566       0.512
+xgboost      NYU     0.563       0.572       0.593
+xgboost     OHSU     0.641       0.673       0.647
+xgboost     OLIN     0.615       0.493       0.570
+xgboost     PITT     0.610       0.655       0.604
+xgboost      SBL     0.533       0.330       0.588
+xgboost     SDSU     0.607       0.541       0.603
+xgboost STANFORD     0.601       0.545       0.628
+xgboost  TRINITY     0.381       0.365       0.391
+xgboost   UCLA_1     0.552       0.555       0.536
+xgboost   UCLA_2     0.576       0.556       0.611
+xgboost     UM_1     0.654       0.657       0.671
+xgboost     UM_2     0.596       0.610       0.588
+xgboost      USM     0.519       0.540       0.521
+xgboost     YALE     0.691       0.681       0.668
