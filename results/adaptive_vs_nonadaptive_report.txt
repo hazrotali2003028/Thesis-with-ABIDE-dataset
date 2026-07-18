@@ -1,0 +1,58 @@
+Adaptive (per-subject) HeteroGNN vs group-level HeteroGNN
+========================================================================
+sites paired: 20   seeds/site: 5   fits: 100
+adaptive     LOSO AUC: 0.5591 +/- 0.0824
+non-adaptive LOSO AUC: 0.5557 +/- 0.0868
+mean delta (adaptive - group): +0.0034   adaptive wins 8/20 sites
+Wilcoxon signed-rank (paired by site): W=93.0  p=0.9359
+
+VERDICT: rebuilding the graph per-subject does NOT beat the
+group-level adjacency (p=0.94). The subject-invariant edge tensor
+was a real defect but not the binding constraint; the ceiling is the
+232 structural features (~0.56), still below svm_rbf (0.604). Report
+as a negative control that closes the 'you never tried a real graph'
+objection, not as a graph that adds value.
+
+Inner-CV hyperparameter selection (over 100 fits):
+  layers chosen: {2: 60, 3: 10, 4: 30}
+  k (neighbours) chosen: {5: 20, 10: 80}
+
+Per-site AUC and runtime (5 seeds/site):
+site      adaptive     sd  group   delta  lyr   k  sec/seed  site_total
+-----------------------------------------------------------------------
+YALE         0.752  0.051  0.706  +0.046    2  10     302.5      25m12s
+SDSU         0.659  0.029  0.645  +0.013    4  10     175.3      14m37s
+PITT         0.637  0.028  0.646  -0.009    4  10     183.2      15m16s
+KKI          0.624  0.058  0.633  -0.009    4  10     177.6      14m48s
+UCLA_1       0.602  0.026  0.558  +0.044    2   5     253.0      21m05s
+UM_1         0.602  0.022  0.644  -0.042    2  10     170.2      14m11s
+OLIN         0.601  0.105  0.601  +0.000    4  10     172.4      14m22s
+LEUVEN_2     0.597  0.064  0.621  -0.024    3   5     242.3      20m12s
+OHSU         0.583  0.062  0.529  +0.054    2  10     167.2      13m56s
+NYU          0.571  0.045  0.591  -0.019    3  10     147.8      12m19s
+UCLA_2       0.556  0.029  0.504  +0.051    2  10     244.9      20m24s
+MAX_MUN      0.552  0.054  0.602  -0.050    2  10     312.9      26m04s
+CALTECH      0.551  0.059  0.414  +0.137    2  10     197.1      16m26s
+CMU          0.508  0.071  0.529  -0.021    2   5     385.7      32m09s
+STANFORD     0.502  0.044  0.562  -0.061    2  10     210.1      17m31s
+LEUVEN_1     0.499  0.051  0.558  -0.059    2  10     242.7      20m14s
+USM          0.488  0.035  0.435  +0.053    4  10     321.2      26m46s
+UM_2         0.447  0.077  0.387  +0.061    4  10     188.8      15m44s
+TRINITY      0.446  0.063  0.490  -0.043    2   5     301.2      25m06s
+SBL          0.404  0.108  0.458  -0.054    2  10     200.9      16m44s
+-----------------------------------------------------------------------
+
+Runtime summary:
+  TIMED (secs column) = outer refit+eval only : 6h23m04s  (22984s over 100 fits)
+  per-fit  mean/min/max                       : 229.8s / 121.0s / 623.9s
+  slowest / fastest site (timed)              : CMU 32m09s / NYU 12m19s
+
+  NOT timed by the secs column, but part of wall-clock:
+    inner HP search : 360 fits (20 sites x 6 configs x 3 GroupKFold folds) -- 3.6x the outer count
+    per-fold build_fold (ComBat fit + per-subject graph build)
+  => OBSERVED WALL-CLOCK ~= 21h (single process). The 6h23m04s above is the
+     final-fit slice only, not total runtime.
+
+  note: timed per-fit cost is inverse to fold size -- a larger held-out
+  site leaves a smaller LOSO training set, hence fewer batches/epoch.
+

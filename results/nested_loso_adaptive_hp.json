@@ -1,0 +1,182 @@
+{
+  "CALTECH": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5862568879118606
+  },
+  "CMU": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 5,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5998048092120533
+  },
+  "KKI": {
+    "hp": {
+      "hidden": 64,
+      "layers": 4,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.593518299334093
+  },
+  "LEUVEN_1": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.607014508574346
+  },
+  "LEUVEN_2": {
+    "hp": {
+      "hidden": 64,
+      "layers": 3,
+      "k": 5,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5938957770299278
+  },
+  "MAX_MUN": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6015731990560963
+  },
+  "NYU": {
+    "hp": {
+      "hidden": 64,
+      "layers": 3,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5794504417380769
+  },
+  "OHSU": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6010432377520417
+  },
+  "OLIN": {
+    "hp": {
+      "hidden": 64,
+      "layers": 4,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5954686363718149
+  },
+  "PITT": {
+    "hp": {
+      "hidden": 64,
+      "layers": 4,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6028444099200043
+  },
+  "SBL": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6178393053830908
+  },
+  "SDSU": {
+    "hp": {
+      "hidden": 64,
+      "layers": 4,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5912127256912781
+  },
+  "STANFORD": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6033099189899492
+  },
+  "TRINITY": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 5,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6005312756467417
+  },
+  "UCLA_1": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 5,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5880208326098533
+  },
+  "UCLA_2": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5943152868574105
+  },
+  "UM_1": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6036545142871935
+  },
+  "UM_2": {
+    "hp": {
+      "hidden": 64,
+      "layers": 4,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5981305149795169
+  },
+  "USM": {
+    "hp": {
+      "hidden": 64,
+      "layers": 4,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.6224222600353694
+  },
+  "YALE": {
+    "hp": {
+      "hidden": 64,
+      "layers": 2,
+      "k": 10,
+      "dropout": 0.3
+    },
+    "inner_auc": 0.5854539162105109
+  }
+}
