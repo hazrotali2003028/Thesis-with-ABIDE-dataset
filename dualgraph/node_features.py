@@ -120,6 +120,34 @@ def _graph_metrics(fc_z: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return np.asarray(cpos), np.asarray(ppos)
 
 
+def extract_robust_features(fc_z: np.ndarray) -> np.ndarray:
+    """[111,111] Fisher-z -> [111,4] robust FC-graph 'nodal role' features:
+    [positive strength, eigenvector centrality, within-module degree z, PC].
+
+    All FC-derived (no T/TR dependence), stable at 111 nodes. Weights bounded via
+    tanh; strength uses positive edges, centrality/within-module-z use |r|
+    (non-negativity required), PC reuses the signed Ppos (identical to physio4's
+    PC, so the comparison isolates the other three)."""
+    fc_z = np.asarray(fc_z, dtype=np.float64)
+    if fc_z.shape != (N_NODES, N_NODES):
+        raise ValueError(f"fc_z must be [{N_NODES}, {N_NODES}], got {fc_z.shape}")
+    W = np.tanh(fc_z)
+    np.fill_diagonal(W, 0.0)
+    W = np.nan_to_num(W, nan=0.0, posinf=0.0, neginf=0.0)
+    Wpos = np.where(W > 0, W, 0.0)
+    Wabs = np.abs(W)
+
+    strength = Wpos.sum(axis=1)
+    eigcen = bct.eigenvector_centrality_und(Wabs)
+    wmz = bct.module_degree_zscore(Wabs, YEO_CI_111, flag=0)
+    _cpos = None
+    ppos, _pneg = bct.participation_coef_sign(W, YEO_CI_111)
+
+    feat = np.column_stack([strength, np.asarray(eigcen), np.asarray(wmz),
+                            np.asarray(ppos)]).astype(np.float32)
+    return np.nan_to_num(feat, nan=0.0, posinf=0.0, neginf=0.0)
+
+
 def extract_node_features(ts: np.ndarray, fc_z: np.ndarray, tr: float) -> np.ndarray:
     """Extract the [111, 4] node-feature matrix. See module docstring."""
     ts = np.asarray(ts, dtype=np.float64)
