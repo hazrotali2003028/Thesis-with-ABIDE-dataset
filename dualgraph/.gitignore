@@ -1,0 +1,3 @@
+# Subject-level / derived data — do not publish (same policy as features/abide_features_raw.csv)
+cohort_final.csv
+cache/fc_z.npy
