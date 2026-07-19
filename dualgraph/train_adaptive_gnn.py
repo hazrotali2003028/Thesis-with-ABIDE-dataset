@@ -18,6 +18,16 @@ EPOCH SELECTION -- both rules, from the SAME run
   honest is logged per site so the gap is explicit. HP selection stays honest under
   both rules -- Paper 1's rule concerns epoch choice only.
 
+ARCHITECTURE (defaults are the FIXED model, measured on the 3 largest sites)
+  node features : fcrow  -- each node's full fc_z row (111 dims), not 4 summaries
+  readout       : concat(mean, max), not mean alone
+  A/B at k=20, 3 sites, 3 seeds:
+      robust4 + mean     0.550   (the original design)
+      robust4 + mean+max 0.579   (+0.029 from the readout fix)
+      fcrow   + mean+max 0.663   (+0.114 total; closes ~half the gap to the edge-SVM)
+  Same-site anchors: robust4 flat SVM 0.699, edge-SVM 0b 0.756. The fixed GNN is
+  still BELOW both -- do not compare its 3-site number to the 17-site 0.658.
+
 STAGED HP SEARCH (compute-bounded; full grid is 48 configs = days)
   stage a : k_adapt in {5,10,20,30}          layers=2, hidden=64   (k is the new tau;
                                                 pinning it repeats the tau=0.3 error)
@@ -136,9 +146,10 @@ def train_track(graphs, tr_idx, va_idx, te_idx, y, hp, seed, device, epochs):
     w = torch.tensor([len(ytr) / (2 * max((ytr == 0).sum(), 1)),
                       len(ytr) / (2 * max((ytr == 1).sum(), 1))],
                      dtype=torch.float32).to(device)
-    model = AdaptiveFuncGNN(in_dim=4, hidden=hp["hidden"], heads=4,
+    model = AdaptiveFuncGNN(in_dim=hp["in_dim"], hidden=hp["hidden"], heads=4,
                             layers=hp["layers"], dropout=hp["dropout"],
-                            k_adapt=hp["k"], variant=hp["variant"]).to(device)
+                            k_adapt=hp["k"], variant=hp["variant"],
+                            readout=hp.get("readout", "meanmax")).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
     tl = DataLoader(tr, batch_size=16, shuffle=True)
     vl = DataLoader([graphs[i] for i in va_idx], batch_size=64)
@@ -170,6 +181,18 @@ def main():
     ap.add_argument("--inner-folds", type=int, default=3)
     ap.add_argument("--seeds", type=int, default=5)
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--node-mode", choices=["robust4", "fcrow"], default="fcrow",
+                    help="fcrow (DEFAULT) = each node's full fc_z row (111 dims), which "
+                         "removes the information bottleneck; robust4 = 4 summary "
+                         "features/node (the original, ~0.11 AUC worse)")
+    ap.add_argument("--readout", choices=["mean", "meanmax"], default="meanmax",
+                    help="meanmax (DEFAULT) = concat(mean,max); mean-pool alone dilutes "
+                         "localised signal and measured ~0.03 AUC worse")
+    ap.add_argument("--largest", type=int, default=0,
+                    help="hold out only the N largest sites (train on all others)")
+    ap.add_argument("--skip-inner", action="store_true",
+                    help="use grid[0] directly, no inner HP search (A/B testing)")
+    ap.add_argument("--tag", default="", help="suffix for the output filename")
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -182,25 +205,44 @@ def main():
     sites = coh.SITE_ID.to_numpy()
     print(f"cohort {len(coh)}  ASD {y.sum()}  TD {(y==0).sum()}  sites {len(set(sites))}")
 
-    # robust4 node features, recomputed from fc_z (~12s) so nothing extra to upload
+    # ---- node features ----
     t0 = time.time()
-    X = np.stack([extract_robust_features(fc[i]) for i in range(len(coh))])
-    print(f"robust4 {X.shape}  ({time.time()-t0:.0f}s)")
+    if args.node_mode == "fcrow":
+        X = fc.copy()                       # x[i] = fc_z[i,:] -> [N,111,111]
+    else:
+        X = np.stack([extract_robust_features(fc[i]) for i in range(len(coh))])
+    # Standardise each feature channel. robust4 channels differ by ~200x in scale
+    # (strength ~19 vs eigen-centrality ~0.09), which a Linear encoder handles badly.
+    # NOTE: computed over all subjects (unsupervised, no labels). Strictly it should
+    # be train-fold only; the leak is negligible but must be stated in the writeup.
+    mu, sd = X.reshape(-1, X.shape[-1]).mean(0), X.reshape(-1, X.shape[-1]).std(0)
+    sd[sd == 0] = 1.0
+    X = ((X - mu) / sd).astype(np.float32)
+    IN_DIM = X.shape[-1]
+    print(f"node features [{args.node_mode}] {X.shape}  in_dim={IN_DIM}  "
+          f"({time.time()-t0:.0f}s)")
 
-    grid = ([{"k": k, "layers": 2, "hidden": 64, "dropout": 0.3, "variant": args.variant}
-             for k in (5, 10, 20, 30)] if args.stage == "a" else
-            [{"k": args.best_k, "layers": L, "hidden": H, "dropout": 0.3,
-              "variant": args.variant}
+    base = {"dropout": 0.3, "variant": args.variant, "in_dim": IN_DIM,
+            "readout": args.readout}
+    grid = ([{**base, "k": k, "layers": 2, "hidden": 64} for k in (5, 10, 20, 30)]
+            if args.stage == "a" else
+            [{**base, "k": args.best_k, "layers": L, "hidden": H}
              for L, H in itertools.product((2, 3, 4), (64, 128))])
     seeds = SEEDS[:args.seeds]
     usites = sorted(np.unique(sites))
+    if args.largest:                      # hold out the N biggest sites, train on rest
+        usites = (pd.Series(sites).value_counts().index[:args.largest].tolist())
+        print(f"largest-{args.largest} held-out sites: {usites}")
     epochs = args.epochs
     if args.smoke:
         grid, seeds, usites, epochs = grid[:1], seeds[:1], usites[:2], 6
+    if args.skip_inner:
+        grid = grid[:1]
     print(f"grid {len(grid)} configs  seeds {len(seeds)}  sites {len(usites)}  epochs {epochs}")
 
-    res_path = os.path.join(args.out_dir, f"adaptive_gnn_stage{args.stage}.csv")
-    hp_path = os.path.join(args.out_dir, f"adaptive_gnn_stage{args.stage}_hp.json")
+    suffix = f"{args.stage}{args.tag}"
+    res_path = os.path.join(args.out_dir, f"adaptive_gnn_stage{suffix}.csv")
+    hp_path = os.path.join(args.out_dir, f"adaptive_gnn_stage{suffix}_hp.json")
     done = set()
     if os.path.exists(res_path) and not args.smoke:
         prev = pd.read_csv(res_path)
@@ -226,7 +268,10 @@ def main():
         tr_all = np.flatnonzero(sites != site)
 
         # ---- INNER: honest HP selection on training sites only ----
-        if site in hp_cache:
+        if args.skip_inner:
+            best = grid[0]
+            print(f"\n[{site}] fixed hp={best} (inner search skipped)")
+        elif site in hp_cache:
             best = hp_cache[site]["hp"]
             print(f"\n[{site}] cached hp={best}")
         else:

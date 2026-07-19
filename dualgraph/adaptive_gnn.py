@@ -33,7 +33,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.data import Data
-from torch_geometric.nn import GATv2Conv, global_mean_pool
+from torch_geometric.nn import GATv2Conv, global_max_pool, global_mean_pool
 
 N_NODES = 111
 
@@ -84,13 +84,24 @@ def adaptive_edges(h: torch.Tensor, k: int, n_nodes: int = N_NODES
 class AdaptiveFuncGNN(nn.Module):
     def __init__(self, in_dim: int = 4, hidden: int = 64, heads: int = 4,
                  layers: int = 2, dropout: float = 0.3, k_adapt: int = 10,
-                 d_proj: int = 16, variant: str = "dual"):
+                 d_proj: int = 16, variant: str = "dual", readout: str = "meanmax"):
         super().__init__()
         assert variant in ("fc", "adapt", "dual")
+        assert readout in ("mean", "meanmax")
         assert hidden % heads == 0, "hidden must be divisible by heads"
         self.variant, self.k_adapt, self.dropout = variant, k_adapt, dropout
+        self.readout = readout
 
-        self.enc = nn.Linear(in_dim, hidden)
+        # FIX 2: mean-pool alone dilutes localised signal by ~1/111; concat(mean,max)
+        # keeps "some region is strongly abnormal" alongside the average.
+        pool_mult = 2 if readout == "meanmax" else 1
+
+        # FIX 1 support: in_dim may now be 111 (each node's full fc_z row) instead of
+        # 4 (robust4). A wide raw input needs a bottleneck + dropout, otherwise the
+        # parameter count is what killed the temporal encoder.
+        self.enc = (nn.Sequential(nn.Linear(in_dim, hidden), nn.ELU(),
+                                  nn.Dropout(dropout))
+                    if in_dim > 16 else nn.Linear(in_dim, hidden))
         self.proj = nn.Linear(in_dim, d_proj)                  # adaptive-graph projector
 
         self.conv_fc = nn.ModuleList()
@@ -107,7 +118,7 @@ class AdaptiveFuncGNN(nn.Module):
                                               dropout=dropout))
             self.norms.append(nn.BatchNorm1d(hidden))
 
-        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+        self.head = nn.Sequential(nn.Linear(pool_mult * hidden, hidden), nn.ReLU(),
                                   nn.Dropout(dropout), nn.Linear(hidden, 2))
 
     def forward(self, data: Data, return_pooled: bool = False):
@@ -132,6 +143,8 @@ class AdaptiveFuncGNN(nn.Module):
             x = F.dropout(x, p=self.dropout, training=self.training)
 
         g = global_mean_pool(x, data.batch)
+        if self.readout == "meanmax":
+            g = torch.cat([g, global_max_pool(x, data.batch)], dim=1)
         logits = self.head(g)
         return (logits, g) if return_pooled else logits
 
