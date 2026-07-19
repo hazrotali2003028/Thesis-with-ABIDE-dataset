@@ -361,7 +361,8 @@ def report(r: pd.DataFrame):
           f"+/- {per.honest_roc_auc.std():.4f}   <- the reportable number")
     print(f"paper1-rule ROC = {per.paper1_roc_auc.mean():.4f} "
           f"(+{per.inflation.mean():.4f}) -- NOT reportable; it reads the answer key")
-    print(f"pooled-vector SD (oversmoothing diagnostic) = {per.pooled_sd.mean():.4f}")
+    if "pooled_sd" in per:      # oversmoothing diagnostic (adaptive-GNN runs only)
+        print(f"pooled-vector SD (oversmoothing diagnostic) = {per.pooled_sd.mean():.4f}")
     print("anchors: edge-SVM 0b=0.658  robust4 flat SVM=0.630  motion floor=0.561")
 
 
