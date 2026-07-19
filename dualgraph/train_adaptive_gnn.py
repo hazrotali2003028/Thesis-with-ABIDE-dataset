@@ -67,6 +67,11 @@ from node_features import extract_robust_features                            # n
 
 SEEDS = [42, 123, 456, 789, 1234]
 
+# every metric is computed under BOTH epoch-selection rules, prefixed honest_/paper1_
+METRIC_KEYS = ["roc_auc", "pr_auc", "accuracy", "balanced_accuracy", "sensitivity",
+               "specificity", "precision", "npv", "f1", "mcc"]
+COUNT_KEYS = ["tp", "tn", "fp", "fn"]
+
 
 # ------------------------------------------------------------------ metrics
 def compute_metrics(y: np.ndarray, score: np.ndarray, thr: float = 0.5) -> dict:
@@ -283,19 +288,36 @@ def main():
 
     print(f"\ntotal {(time.time()-t_start)/60:.1f} min -> {res_path}")
     if os.path.exists(res_path):
-        r = pd.read_csv(res_path)
-        per = r.groupby("site").mean(numeric_only=True)
-        print("\n=== per-site mean, HONEST rule (report this) ===")
-        cols = ["honest_roc_auc", "honest_pr_auc", "honest_accuracy",
-                "honest_balanced_accuracy", "honest_sensitivity",
-                "honest_specificity", "honest_precision", "honest_f1", "honest_mcc"]
-        print(per[[c for c in cols if c in per]].round(3).to_string())
-        print(f"\nHONEST LOSO ROC = {per.honest_roc_auc.mean():.4f} "
-              f"+/- {per.honest_roc_auc.std():.4f}")
-        print(f"paper1-rule ROC = {per.paper1_roc_auc.mean():.4f} "
-              f"(inflation {per.inflation.mean():+.4f}) -- comparison only, NOT reportable")
-        print(f"pooled-vector SD (oversmoothing diagnostic) = {per.pooled_sd.mean():.4f}")
-        print("anchors: edge-SVM 0b=0.658  robust4 flat SVM=0.630  motion floor=0.561")
+        report(pd.read_csv(res_path))
+
+
+def report(r: pd.DataFrame):
+    """Per-site tables under BOTH epoch rules, plus the per-metric inflation."""
+    per = r.groupby("site").mean(numeric_only=True)
+
+    for tag, note in (("honest", "REPORT THIS"),
+                      ("paper1", "COMPARISON ONLY -- epoch chosen on the test site")):
+        cols = [f"{tag}_{m}" for m in METRIC_KEYS if f"{tag}_{m}" in per]
+        print(f"\n=== per-site mean, {tag.upper()} rule ({note}) ===")
+        print(per[cols].rename(columns=lambda c: c.replace(f"{tag}_", ""))
+              .round(3).to_string())
+
+    print("\n=== inflation per metric (paper1 - honest, mean over sites) ===")
+    rows = []
+    for m in METRIC_KEYS:
+        h, p = f"honest_{m}", f"paper1_{m}"
+        if h in per and p in per:
+            rows.append({"metric": m, "honest": per[h].mean(),
+                         "paper1": per[p].mean(),
+                         "inflation": per[p].mean() - per[h].mean()})
+    print(pd.DataFrame(rows).round(4).to_string(index=False))
+
+    print(f"\nHONEST LOSO ROC = {per.honest_roc_auc.mean():.4f} "
+          f"+/- {per.honest_roc_auc.std():.4f}   <- the reportable number")
+    print(f"paper1-rule ROC = {per.paper1_roc_auc.mean():.4f} "
+          f"(+{per.inflation.mean():.4f}) -- NOT reportable; it reads the answer key")
+    print(f"pooled-vector SD (oversmoothing diagnostic) = {per.pooled_sd.mean():.4f}")
+    print("anchors: edge-SVM 0b=0.658  robust4 flat SVM=0.630  motion floor=0.561")
 
 
 if __name__ == "__main__":
